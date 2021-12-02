@@ -2,7 +2,7 @@
 Post Process Animator is a utility class to easily animate Post-processing parameters using DOTween and reflection.
 
 # Motivation
-While this solution is not type-safe and might seem like overkill, it is super easy to use. If you find yourself animating Post-processing values through code a lot, this class can help make your life a little easier by keeping track of existing tweens, simplifying your syntax, and consolidating your dependencies.
+While this solution is not as "safe" as manipulating these parameters directly (by virtue of working with string) and might seem like overkill, it is super fast and easy to use. If you find yourself animating Post-processing values through code a lot, this class can help make your life a little easier by keeping track of existing tweens, simplifying your syntax, removing boilerplate and consolidating your dependencies.
 
 *The "typical" way of animating a Lens Distortion's intensity:*
 ```csharp
@@ -16,7 +16,8 @@ public class SomeBehaviour : MonoBehaviour {
     Tween ldIntensityTween;
     
     void Awake() {
-        // Make sure the volume's profile is not the original instance if you don't want to modify the Scriptable Object stored in your project. Multiple scripts might be touching it, so you'd need a static or shared bool somewhere.
+        // Make sure the volume's profile is not the original instance if you don't want to modify the Scriptable Object stored in your project.
+        // Multiple scripts might be touching it, so you'd need a static or shared bool somewhere.
         if(Globals.OriginalPostProcessProfile == volume.profile) {
             volume.profile = Instantiate(volume.profile);
         }
@@ -34,7 +35,7 @@ public class SomeBehaviour : MonoBehaviour {
 }
 ```
 
-This doesn't look *too* bad, until you also want to do the same for it's scale, requiring an added `float originalLdScale` and ` Tween ldScaleTween`, as well as killing and reassigning this new tween.
+This doesn't look *too* bad, until you also want to do the same for its scale, requiring an added `float originalLdScale` and ` Tween ldScaleTween`, as well as killing and reassigning this new tween.
 
 *Using Post Process Animator:*
 ```csharp
