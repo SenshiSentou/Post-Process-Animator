@@ -12,22 +12,24 @@ public class SomeBehaviour : MonoBehaviour {
     [SerializeField] float ldIntensityTweenDuration;
     
     LensDistortion ld;
+    float originalLdIntensity;
     Tween ldIntensityTween;
     
     void Awake() {
         // Make sure the volume's profile is not the original instance if you don't want to modify the Scriptable Object stored in your project. Multiple scripts might be touching it, so you'd need a static or shared bool somewhere.
+        if(Globals.OriginalPostProcessProfile == volume.profile) {
+            volume.profile = Instantiate(volume.profile);
+        }
+        
         ld = volume.profile.GetSetting<LensDistortion>();
+        
         // Potentially store the original values for later resets
+        originalLdIntensity = ld.intensity;
     }
     
     void AnimateLDIntensity() {
         ldTween?.Kill();
-        
-        ldTween = DOVirtual.Float(dof.focusDistance.value, ldTargetIntensity, ldIntensityTweenDuration, UpdateLDIntensity);
-    }
-    
-    void UpdateLDIntensity(float intensity) {
-        ld.intensity.value = intensity;
+        ldTween = DOVirtual.Float(ld.intensity.value, ldTargetIntensity, ldIntensityTweenDuration, x => ld.intensity.value = x);
     }
 }
 ```
@@ -43,7 +45,7 @@ public class SomeBehaviour : MonoBehaviour {
     
     void AnimateLDIntensity() {
         var ld = postProcessAnimator.GetEffect<LensDistortion>();
-        ld.Tween("intensity", -100f, locationTransitionZoomDuration);
+        ld.Tween("intensity", ldTargetIntensity, locationTransitionZoomDuration);
     }
 }
 ```
