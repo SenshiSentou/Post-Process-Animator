@@ -1,5 +1,5 @@
 # Post Process Animator
-A utility class to easily animate Post-processing parameters using DOTween and reflection
+Post Process Animator is a utility class to easily animate Post-processing parameters using DOTween and reflection.
 
 # Motivation
 While this solution is not type-safe and might seem like overkill, it is super easy to use. If you find yourself animating Post-processing values through code a lot, this class can help make your life a little easier by keeping track of existing tweens, simplifying your syntax, and consolidating your dependencies.
