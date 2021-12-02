@@ -9,7 +9,7 @@ While this solution is not type-safe and might seem like overkill, it is super e
 public class SomeBehaviour : MonoBehaviour {
     [SerializeField] PostProcessVolume volume;
     [SerializeField] float ldTargetIntensity;
-    [SerializeField] float ldIntensityTweenDuration;
+    [SerializeField] float ldTweenDuration;
     
     LensDistortion ld;
     float originalLdIntensity;
@@ -29,10 +29,12 @@ public class SomeBehaviour : MonoBehaviour {
     
     void AnimateLDIntensity() {
         ldTween?.Kill();
-        ldTween = DOVirtual.Float(ld.intensity.value, ldTargetIntensity, ldIntensityTweenDuration, x => ld.intensity.value = x);
+        ldTween = DOVirtual.Float(ld.intensity.value, ldTargetIntensity, ldTweenDuration, x => ld.intensity.value = x);
     }
 }
 ```
+
+This doesn't look *too* bad, until you also want to do the same for it's scale, requiring an added `float originalLdScale` and ` Tween ldScaleTween`, as well as killing and reassigning this new tween.
 
 *Using Post Process Animator:*
 ```csharp
@@ -41,11 +43,13 @@ public class SomeBehaviour : MonoBehaviour {
     
     [SerializeField] PostProcessAnimator postProcessAnimator;
     [SerializeField] float ldTargetIntensity;
-    [SerializeField] float ldIntensityTweenDuration;
+    [SerializeField] float ldTargetScale;
+    [SerializeField] float ldTweenDuration;
     
-    void AnimateLDIntensity() {
+    void AnimateLD() {
         var ld = postProcessAnimator.GetEffect<LensDistortion>();
-        ld.Tween("intensity", ldTargetIntensity, locationTransitionZoomDuration);
+        ld.Tween("intensity", ldTargetIntensity, ldTweenDuration);
+        ld.Tween("scale", ldTargetScale, ldTweenDuration);
     }
 }
 ```
@@ -54,7 +58,7 @@ Or if you want more control over your tweens:
 
 ```csharp
 void AnimateLDIntensity() {
-    Tween tween = DOVirtual.Float(0f, ldTargetIntensity, ldIntensityTweenSpeed, x => ld.settings.intensity.value = x).SetSpeedBased();
+    Tween tween = DOVirtual.Float(0f, ldTargetIntensity, ldTweenSpeed, x => ld.settings.intensity.value = x).SetSpeedBased();
 
     var ld = postProcessAnimator.GetEffect<LensDistortion>();
     ld.Tween(tween, id: "intensity");
@@ -64,12 +68,12 @@ void AnimateLDIntensity() {
 # How to use
 Simply add `PostProcessAnimator.cs` to your project, and attach the `PostProcessAnimator` component to the same object as your Post Processing Volume. In your controlling script, make sure to add the `using BlueTomato` directive, and just start using the methods as shown above!
 
-Each Post Process Animator Effect (retrieved through `postProcessAnimator.GetEffect<>()`) stored both its current settings, as well as it's original ones for easy access. For example, to reset the lens distortion intensity from the above example:
+Each Post Process Animator Effect (retrieved through `postProcessAnimator.GetEffect<>()`) stores both its current settings, as well as it's original ones for easy access. For example, to reset the lens distortion intensity from the above example:
 
 ```csharp
 void ResetLDIntensity() {
     var ld = postProcessAnimator.GetEffect<LensDistortion>();
-    ld.Tween("intensity", ld.originalSettings.intensity.value, locationTransitionZoomDuration);
+    ld.Tween("intensity", ld.originalSettings.intensity.value, ldTweenDuration);
 }
 ```
 
